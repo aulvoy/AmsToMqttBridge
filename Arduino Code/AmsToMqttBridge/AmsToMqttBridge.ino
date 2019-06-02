@@ -9,10 +9,10 @@
 #include <OneWire.h>
 #include <ArduinoJson.h>
 #include <MQTT.h>
-#include <HanReader.h>
-#include <Aidon.h>
-#include <Kaifa.h>
-#include <Kamstrup.h>
+#include "HanReader.h"
+#include "Aidon.h"
+#include "Kaifa.h"
+#include "Kamstrup.h"
 #include "configuration.h"
 #include "accesspoint.h"
 
@@ -184,13 +184,13 @@ void readHanPort()
 
 void readHanPort_Aidon(int listSize)
 {
-  if (listSize == (int)Aidon::List1 || listSize == (int)Aidon::List2 || listSize == (int)Aidon::List3 || listSize == (int)Aidon::List2_p1 ||)
-  {
-    if (listSize == (int)Aidon::List2)
-    {
-      String id = hanReader.getString((int)Aidon_List2::ListVersionIdentifier);
-      if (debugger) debugger->println(id);
-    }
+  // if (listSize == (int)Aidon::List1 || listSize == (int)Aidon::List2_IT|| listSize == (int)Aidon::List2_TN || listSize == (int)Aidon::List3_IT || listSize == (int)Aidon::List3_TN)
+  // {
+    // if (listSize == (int)Aidon::List2)
+    // {
+    //   String id = hanReader.getString((int)Aidon_List2::ListVersionIdentifier);
+    //   if (debugger) debugger->println(id);
+    // }
 
     // Get the timestamp (as unix time) from the package
     time_t time = hanReader.getPackageTime();
@@ -204,7 +204,7 @@ void readHanPort_Aidon(int listSize)
     // Any generic useful info here
     root["id"] = WiFi.macAddress();
     root["up"] = millis();
-    root["t"] = time;
+    root["t"] = listSize;
 
     // Add a sub-structure to the json object, 
     // to keep the data from the meter itself
@@ -221,48 +221,97 @@ void readHanPort_Aidon(int listSize)
     {
       data["P"] = hanReader.getInt((int)Aidon_List1::ActiveImportPower);
     }
-    else if (listSize == (int)Aidon::List2)
+		 else if (listSize == (int)Aidon::List2_1p)
     {
-      data["lv"] = hanReader.getString((int)Aidon_List2::ListVersionIdentifier);
-      data["id"] = hanReader.getString((int)Aidon_List2::MeterID);
-      data["type"] = hanReader.getString((int)Aidon_List2::MeterType);
-      data["P"] = hanReader.getInt((int)Aidon_List2::ActiveImportPower);
-      data["Q"] = hanReader.getInt((int)Aidon_List2::ReactiveExportPower);
-      data["I1"] = ((double) hanReader.getInt((int)Aidon_List2::CurrentL1)) / 10;
-      data["I2"] = ((double) hanReader.getInt((int)Aidon_List2::CurrentL2)) / 10;
-      data["I3"] = ((double) hanReader.getInt((int)Aidon_List2::CurrentL3)) / 10;
-      data["U1"] = ((double) hanReader.getInt((int)Aidon_List2::VoltageL1)) / 10;
-      data["U2"] = ((double) hanReader.getInt((int)Aidon_List2::VoltageL2)) / 10; 
-      data["U3"] = ((double) hanReader.getInt((int)Aidon_List2::VoltageL3)) / 10;
+      data["lv"] = hanReader.getString((int)Aidon_List2_1p::ListVersionIdentifier);
+      data["id"] = hanReader.getString((int)Aidon_List2_1p::MeterID);
+      data["type"] = hanReader.getString((int)Aidon_List2_1p::MeterType);
+      data["P"] = hanReader.getInt((int)Aidon_List2_1p::ActiveImportPower);
+      data["Q"] = hanReader.getInt((int)Aidon_List2_1p::ReactiveExportPower);
+      data["I1"] = ((double) hanReader.getInt((int)Aidon_List2_1p::Current)) / 10;
+      data["U1"] = ((double) hanReader.getInt((int)Aidon_List2_1p::Voltage)) / 10;
     }
-    else if (listSize == (int)Aidon::List2_p1)
+    else if (listSize == (int)Aidon::List2_IT)
     {
-      data["lv"] = hanReader.getString((int)Aidon_List2_p1::ListVersionIdentifier);
-      data["id"] = hanReader.getString((int)Aidon_List2_p1::MeterID);
-      data["type"] = hanReader.getString((int)Aidon_List2_p1::MeterType);
-      data["P"] = hanReader.getInt((int)Aidon_List2_p1::ActiveImportPower);
-      data["Q"] = hanReader.getInt((int)Aidon_List2_p1::ReactiveExportPower);
-      data["I1"] = ((double) hanReader.getInt((int)Aidon_List2_p1::Current)) / 10;
-      data["U1"] = ((double) hanReader.getInt((int)Aidon_List2_p1::Voltage)) / 10;
+      data["lv"] = hanReader.getString((int)Aidon_List2_IT::ListVersionIdentifier);
+      data["id"] = hanReader.getString((int)Aidon_List2_IT::MeterID);
+      data["type"] = hanReader.getString((int)Aidon_List2_IT::MeterType);
+      data["P"] = hanReader.getInt((int)Aidon_List2_IT::ActiveImportPower);
+      data["Q"] = hanReader.getInt((int)Aidon_List2_IT::ReactiveExportPower);
+      data["I1"] = ((double) hanReader.getInt((int)Aidon_List2_IT::CurrentL1)) / 10;
+      data["I3"] = ((double) hanReader.getInt((int)Aidon_List2_IT::CurrentL3)) / 10;
+      data["U1"] = ((double) hanReader.getInt((int)Aidon_List2_IT::VoltageL1)) / 10;
+      data["U2"] = ((double) hanReader.getInt((int)Aidon_List2_IT::VoltageL2)) / 10; 
+      data["U3"] = ((double) hanReader.getInt((int)Aidon_List2_IT::VoltageL3)) / 10;
     }
-    else if (listSize == (int)Aidon::List3)
+		  else if (listSize == (int)Aidon::List2_TN)
     {
-      data["lv"] = hanReader.getString((int)Aidon_List3::ListVersionIdentifier);
-      data["id"] = hanReader.getString((int)Aidon_List3::MeterID);
-      data["type"] = hanReader.getString((int)Aidon_List3::MeterType);
-      data["P"] = hanReader.getInt((int)Aidon_List3::ActiveImportPower);
-      data["Q"] = hanReader.getInt((int)Aidon_List3::ReactiveExportPower);
-      data["I1"] = ((double) hanReader.getInt((int)Aidon_List3::CurrentL1)) / 10;
-      data["I2"] = ((double) hanReader.getInt((int)Aidon_List3::CurrentL2)) / 10;
-      data["I3"] = ((double) hanReader.getInt((int)Aidon_List3::CurrentL3)) / 10;
-      data["U1"] = ((double) hanReader.getInt((int)Aidon_List3::VoltageL1)) / 10;
-      data["U2"] = ((double) hanReader.getInt((int)Aidon_List3::VoltageL2)) / 10; 
-      data["U3"] = ((double) hanReader.getInt((int)Aidon_List3::VoltageL3)) / 10;
-      data["tPI"] = hanReader.getInt((int)Aidon_List3::CumulativeActiveImportEnergy);
-      data["tPO"] = hanReader.getInt((int)Aidon_List3::CumulativeActiveExportEnergy);
-      data["tQI"] = hanReader.getInt((int)Aidon_List3::CumulativeReactiveImportEnergy);
-      data["tQO"] = hanReader.getInt((int)Aidon_List3::CumulativeReactiveExportEnergy);
+      data["lv"] = hanReader.getString((int)Aidon_List2_TN::ListVersionIdentifier);
+      data["id"] = hanReader.getString((int)Aidon_List2_TN::MeterID);
+      data["type"] = hanReader.getString((int)Aidon_List2_TN::MeterType);
+      data["P"] = hanReader.getInt((int)Aidon_List2_TN::ActiveImportPower);
+      data["Q"] = hanReader.getInt((int)Aidon_List2_TN::ReactiveExportPower);
+      data["I1"] = ((double) hanReader.getInt((int)Aidon_List2_TN::CurrentL1)) / 10;
+      data["I2"] = ((double) hanReader.getInt((int)Aidon_List2_TN::CurrentL2)) / 10;
+      data["I3"] = ((double) hanReader.getInt((int)Aidon_List2_TN::CurrentL3)) / 10;
+      data["U1"] = ((double) hanReader.getInt((int)Aidon_List2_TN::VoltageL1)) / 10;
+      data["U2"] = ((double) hanReader.getInt((int)Aidon_List2_TN::VoltageL2)) / 10; 
+      data["U3"] = ((double) hanReader.getInt((int)Aidon_List2_TN::VoltageL3)) / 10;
     }
+		 else if (listSize == (int)Aidon::List3_1p)
+    {
+      data["lv"] = hanReader.getString((int)Aidon_List3_1p::ListVersionIdentifier);
+      data["id"] = hanReader.getString((int)Aidon_List3_1p::MeterID);
+      data["type"] = hanReader.getString((int)Aidon_List3_1p::MeterType);
+      data["P"] = hanReader.getInt((int)Aidon_List3_1p::ActiveImportPower);
+      data["Q"] = hanReader.getInt((int)Aidon_List3_1p::ReactiveExportPower);
+      data["I1"] = ((double) hanReader.getInt((int)Aidon_List3_1p::Current)) / 10;
+      data["U1"] = ((double) hanReader.getInt((int)Aidon_List3_1p::Voltage)) / 10;
+      data["tPI"] = hanReader.getInt((int)Aidon_List3_1p::CumulativeActiveImportEnergy) / 100;
+      data["tPO"] = hanReader.getInt((int)Aidon_List3_1p::CumulativeActiveExportEnergy) / 100;
+      data["tQI"] = hanReader.getInt((int)Aidon_List3_1p::CumulativeReactiveImportEnergy) / 100;
+      data["tQO"] = hanReader.getInt((int)Aidon_List3_1p::CumulativeReactiveExportEnergy) / 100;
+    }
+    else if (listSize == (int)Aidon::List3_IT)
+    {
+      data["lv"] = hanReader.getString((int)Aidon_List3_IT::ListVersionIdentifier);
+      data["id"] = hanReader.getString((int)Aidon_List3_IT::MeterID);
+      data["type"] = hanReader.getString((int)Aidon_List3_IT::MeterType);
+      data["P"] = hanReader.getInt((int)Aidon_List3_IT::ActiveImportPower);
+      data["Q"] = hanReader.getInt((int)Aidon_List3_IT::ReactiveExportPower);
+      data["I1"] = ((double) hanReader.getInt((int)Aidon_List3_IT::CurrentL1)) / 10;
+      data["I3"] = ((double) hanReader.getInt((int)Aidon_List3_IT::CurrentL3)) / 10;
+      data["U1"] = ((double) hanReader.getInt((int)Aidon_List3_IT::VoltageL1)) / 10;
+      data["U2"] = ((double) hanReader.getInt((int)Aidon_List3_IT::VoltageL2)) / 10; 
+      data["U3"] = ((double) hanReader.getInt((int)Aidon_List3_IT::VoltageL3)) / 10;
+      data["tPI"] = hanReader.getInt((int)Aidon_List3_IT::CumulativeActiveImportEnergy) / 100;
+      data["tPO"] = hanReader.getInt((int)Aidon_List3_IT::CumulativeActiveExportEnergy) / 100;
+      data["tQI"] = hanReader.getInt((int)Aidon_List3_IT::CumulativeReactiveImportEnergy) / 100;
+      data["tQO"] = hanReader.getInt((int)Aidon_List3_IT::CumulativeReactiveExportEnergy) / 100;
+    }
+		else if (listSize == (int)Aidon::List3_TN)
+    {
+      data["lv"] = hanReader.getString((int)Aidon_List3_TN::ListVersionIdentifier);
+      data["id"] = hanReader.getString((int)Aidon_List3_TN::MeterID);
+      data["type"] = hanReader.getString((int)Aidon_List3_TN::MeterType);
+      data["P"] = hanReader.getInt((int)Aidon_List3_TN::ActiveImportPower);
+      data["Q"] = hanReader.getInt((int)Aidon_List3_TN::ReactiveExportPower);
+      data["I1"] = ((double) hanReader.getInt((int)Aidon_List3_TN::CurrentL1)) / 10;
+      data["I2"] = ((double) hanReader.getInt((int)Aidon_List3_TN::CurrentL2)) / 10;
+      data["I3"] = ((double) hanReader.getInt((int)Aidon_List3_TN::CurrentL3)) / 10;
+      data["U1"] = ((double) hanReader.getInt((int)Aidon_List3_TN::VoltageL1)) / 10;
+      data["U2"] = ((double) hanReader.getInt((int)Aidon_List3_TN::VoltageL2)) / 10; 
+      data["U3"] = ((double) hanReader.getInt((int)Aidon_List3_TN::VoltageL3)) / 10;
+      data["tPI"] = hanReader.getInt((int)Aidon_List3_TN::CumulativeActiveImportEnergy) / 100;
+      data["tPO"] = hanReader.getInt((int)Aidon_List3_TN::CumulativeActiveExportEnergy) / 100;
+      data["tQI"] = hanReader.getInt((int)Aidon_List3_TN::CumulativeReactiveImportEnergy) / 100;
+      data["tQO"] = hanReader.getInt((int)Aidon_List3_TN::CumulativeReactiveExportEnergy) / 100;
+    }
+		else
+		{
+			data["type"] = "Ukjent måler";
+		}
+		
 
     // Write the json to the debug port
     if (debugger) {
@@ -280,7 +329,7 @@ void readHanPort_Aidon(int listSize)
     root.printTo(msg, 1024);
     mqtt.publish(ap.config.mqttPublishTopic, msg);
     mqtt.loop();
-  }
+  // }
 }
 
 void readHanPort_Kamstrup(int listSize)
